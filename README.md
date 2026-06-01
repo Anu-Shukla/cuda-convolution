@@ -1,4 +1,4 @@
-# Project 3: CUDA 2D Convolution
+# CUDA 2D Convolution
 
 Goal: implement 2D convolution in CUDA across several optimization levels, then
 compare against cuDNN.
@@ -22,19 +22,3 @@ where:
 - `F`: filter size
 - `P`: padding
 - `S`: stride
-
-## Build Commands
-
-```bash
-nvcc naive.cu -o naive -O3 --use_fast_math
-nvcc tiled.cu -o tiled -O3 --use_fast_math
-nvcc constant.cu -o constant -O3 --use_fast_math
-nvcc cudnn_ref.cu -o cudnn_ref -O3 -lcudnn
-```
-
-## Suggested Order
-
-1. Fill in `naive.cu`.
-2. Fill in `tiled.cu`.
-3. Fill in `constant.cu`.
-4. Fill in `cudnn_ref.cu`.
