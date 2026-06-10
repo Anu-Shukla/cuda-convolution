@@ -3,6 +3,8 @@
 Goal: implement 2D convolution in CUDA across several optimization levels, then
 compare against cuDNN.
 
+Correctness was validated against a CPU reference outside the timed region.
+
 ## Files
 
 - `naive.cu`: one thread per output element, all global memory
