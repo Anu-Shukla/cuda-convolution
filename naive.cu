@@ -1,5 +1,6 @@
 #include <cuda_runtime_api.h>
 #include <stdio.h>
+#include <math.h>
 #include <cuda_runtime.h>
 
 struct Conv2DConfig {
@@ -9,6 +10,52 @@ struct Conv2DConfig {
     int padding;
     int stride;
 };
+
+void conv2d_cpu_reference(const float* input,
+                          const float* filter,
+                          float* output,
+                          Conv2DConfig cfg) {
+    int out_h = (cfg.height - cfg.filter_size + 2 * cfg.padding) / cfg.stride + 1;
+    int out_w = (cfg.width - cfg.filter_size + 2 * cfg.padding) / cfg.stride + 1;
+
+    for (int out_row = 0; out_row < out_h; out_row++) {
+        for (int out_col = 0; out_col < out_w; out_col++) {
+            float accumulator = 0.0f;
+
+            for (int filter_row = 0; filter_row < cfg.filter_size; filter_row++) {
+                for (int filter_col = 0; filter_col < cfg.filter_size; filter_col++) {
+                    int in_row = out_row * cfg.stride + filter_row - cfg.padding;
+                    int in_col = out_col * cfg.stride + filter_col - cfg.padding;
+
+                    if (in_row >= 0 && in_row < cfg.height && in_col >= 0 && in_col < cfg.width) {
+                        int input_index = in_row * cfg.width + in_col;
+                        int filter_index = filter_row * cfg.filter_size + filter_col;
+                        accumulator += input[input_index] * filter[filter_index];
+                    }
+                }
+            }
+
+            output[out_row * out_w + out_col] = accumulator;
+        }
+    }
+}
+
+bool compare_outputs(const float* gpu_output,
+                     const float* cpu_output,
+                     int output_elems) {
+    const float tolerance = 1e-3f;
+
+    for (int i = 0; i < output_elems; i++) {
+        float diff = fabsf(gpu_output[i] - cpu_output[i]);
+        if (diff > tolerance) {
+            printf("Mismatch at index %d: GPU %.6f, CPU %.6f, diff %.6f\n",
+                   i, gpu_output[i], cpu_output[i], diff);
+            return false;
+        }
+    }
+
+    return true;
+}
 
 __global__ void conv2d_naive_kernel(const float* input,
                                     const float* filter,
@@ -77,6 +124,7 @@ int main(int argc, char** argv) {
     float* h_input = new float[input_elems];
     float* h_filter = new float[filter_elems];
     float* h_output = new float[output_elems];
+    float* h_reference = new float[output_elems];
 
     for (int i = 0; i < input_elems; i++) {
         h_input[i] = 1.0f;
@@ -119,6 +167,8 @@ int main(int argc, char** argv) {
     printf("GFLOP/s: %.2f\n", gflops);
 
     cudaMemcpy(h_output, d_output, output_elems * sizeof(float), cudaMemcpyDeviceToHost);
+    conv2d_cpu_reference(h_input, h_filter, h_reference, cfg);
+    printf("Correctness: %s\n", compare_outputs(h_output, h_reference, output_elems) ? "PASS" : "FAIL");
 
     /**
     for (int r = 0; r < out_h; ++r) {
@@ -128,7 +178,7 @@ int main(int argc, char** argv) {
           printf("\n");
     }**/
 
-    delete[] h_input; delete[] h_filter; delete[] h_output;
+    delete[] h_input; delete[] h_filter; delete[] h_output; delete[] h_reference;
     cudaFree(d_input); cudaFree(d_filter); cudaFree(d_output);
     cudaEventDestroy(start); cudaEventDestroy(stop);
 
