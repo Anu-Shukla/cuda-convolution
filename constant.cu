@@ -50,12 +50,7 @@ __global__ void conv2d_constant_kernel(const float* input,
 
 void launch_constant_conv2d(const float* d_input,
                             float* d_output,
-                            Conv2DConfig cfg) {
-    // TODO: Copy h_filter into c_filter with cudaMemcpyToSymbol.
-    // TODO: Compute output dimensions from cfg.
-    // TODO: Choose block and grid dimensions.
-    // TODO: Launch conv2d_constant_kernel. 
-   
+                            Conv2DConfig cfg) {   
     int out_h = (cfg.height - cfg.filter_size + 2 * cfg.padding) / cfg.stride + 1;
     int out_w = (cfg.width - cfg.filter_size + 2 * cfg.padding) / cfg.stride + 1;
 
