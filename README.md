@@ -33,3 +33,20 @@ Configuration: `2048x2048` input, `21x21` filter, padding `10`, stride `1`, FP32
 | Tiled CUDA | 1.537 |
 | Constant Memory CUDA | 1.179 |
 | cuDNN Reference | 1.791 |
+
+## Profiling
+
+Profiled the fastest implementation, `constant`, with Nsight Compute:
+
+| Metric | Value |
+| --- | ---: |
+| Kernel duration | 1.42 ms |
+| Compute throughput | 81.98% |
+| Memory throughput | 64.16% |
+| DRAM throughput | 2.21% |
+| L1/TEX hit rate | 98.80% |
+| L2 hit rate | 86.94% |
+| Achieved occupancy | 87.77% |
+| Registers per thread | 28 |
+
+The profile indicates that the constant-memory kernel is mostly compute/instruction limited rather than DRAM-bandwidth limited. The low DRAM throughput and high cache hit rates show that most memory accesses are being served efficiently from cache.
