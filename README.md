@@ -22,3 +22,14 @@ where:
 - `F`: filter size
 - `P`: padding
 - `S`: stride
+
+## Results
+
+Configuration: `2048x2048` input, `21x21` filter, padding `10`, stride `1`, FP32.
+
+| Implementation | Time (ms) |
+| --- | ---: |
+| Naive CUDA | 1.527 |
+| Tiled CUDA | 1.537 |
+| Constant Memory CUDA | 1.179 |
+| cuDNN Reference | 1.791 |
