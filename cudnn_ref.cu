@@ -161,6 +161,8 @@ int main(int argc, char** argv) {
     float ms = 0;
     cudaEventElapsedTime(&ms, start, stop);
     printf("Time: %.3f ms\n", ms);
+    double gflops = (2.0 * output_elems * filter_elems) / (ms * 1.0e6);
+    printf("GFLOP/s: %.2f\n", gflops);
 
     cudaMemcpy(h_output, d_output, output_elems * sizeof(float), cudaMemcpyDeviceToHost);
 
