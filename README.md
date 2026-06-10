@@ -27,12 +27,12 @@ where:
 
 Configuration: `2048x2048` input, `21x21` filter, padding `10`, stride `1`, FP32.
 
-| Implementation | Time (ms) |
-| --- | ---: |
-| Naive CUDA | 1.527 |
-| Tiled CUDA | 1.537 |
-| Constant Memory CUDA | 1.179 |
-| cuDNN Reference | 1.791 |
+| Implementation | Time (ms) | GFLOP/s |
+| --- | ---: | ---: |
+| Naive CUDA | 1.538 | 2405.04 |
+| Tiled CUDA | 1.536 | 2407.90 |
+| Constant Memory CUDA | 1.177 | 3144.19 |
+| cuDNN Reference | 1.795 | 2061.15 |
 
 ## Profiling
 
